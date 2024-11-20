@@ -26,7 +26,7 @@ import org.apache.logging.log4j.core.impl.Log4jLogEvent;
 import org.apache.logging.log4j.core.test.appender.ListAppender;
 import org.apache.logging.log4j.jul.ApiLogger;
 import org.apache.logging.log4j.jul.LevelTranslator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  *
