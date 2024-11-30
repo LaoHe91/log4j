@@ -18,6 +18,7 @@ package org.apache.logging.log4j.core.appender;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.logging.log4j.Logger;
@@ -27,33 +28,14 @@ import org.apache.logging.log4j.core.test.appender.FailOnceAppender;
 import org.apache.logging.log4j.core.test.appender.ListAppender;
 import org.apache.logging.log4j.core.test.junit.LoggerContextSource;
 import org.apache.logging.log4j.core.test.junit.Named;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-@LoggerContextSource("log4j-failover.xml")
 public class FailoverAppenderTest {
-    private final ListAppender app;
-    private final FailOnceAppender foApp;
-    private final Logger logger;
-    private final Logger onceLogger;
-
-    public FailoverAppenderTest(
-            final LoggerContext context,
-            @Named("List") final ListAppender app,
-            @Named("Once") final FailOnceAppender foApp) {
-        this.app = app;
-        this.foApp = foApp;
-        logger = context.getLogger("LoggerTest");
-        onceLogger = context.getLogger("Once");
-    }
-
-    @AfterEach
-    public void tearDown() throws Exception {
-        app.clear();
-    }
 
     @Test
-    public void testFailover() {
+    @LoggerContextSource("log4j-failover.xml")
+    public void testFailover(final LoggerContext context, @Named("List") final ListAppender app) {
+        final Logger logger = context.getLogger("LoggerTest");
         logger.error("This is a test");
         List<LogEvent> events = app.getEvents();
         assertNotNull(events);
@@ -66,7 +48,13 @@ public class FailoverAppenderTest {
     }
 
     @Test
-    public void testRecovery() throws Exception {
+    @LoggerContextSource("log4j-failover.xml")
+    public void testRecovery(
+            final LoggerContext context,
+            @Named("List") final ListAppender app,
+            @Named("Once") final FailOnceAppender foApp)
+            throws Exception {
+        final Logger onceLogger = context.getLogger("Once");
         onceLogger.error("Fail once");
         onceLogger.error("Fail again");
         List<LogEvent> events = app.getEvents();
@@ -80,5 +68,12 @@ public class FailoverAppenderTest {
         assertEquals(events.size(), 0, "Did not recover");
         events = foApp.drainEvents();
         assertEquals(events.size(), 2, "Incorrect number of events in primary appender");
+    }
+
+    @Test
+    @LoggerContextSource("log4j-failover-location.xml")
+    public void testRequiresLocation(final LoggerContext context) {
+        final FailoverAppender appender = context.getConfiguration().getAppender("Failover");
+        assertTrue(appender.requiresLocation());
     }
 }
