@@ -55,7 +55,7 @@
 
     <!-- Dependencies unique for this module -->
     <jetty.version>9.4.56.v20240826</jetty.version>
-    <tomcat-juli.version>10.0.27</tomcat-juli.version>
+    <tomcat-juli.version>10.1.33</tomcat-juli.version>
   </properties>
 
   <dependencies>
